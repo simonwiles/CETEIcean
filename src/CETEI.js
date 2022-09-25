@@ -1,7 +1,7 @@
-import defaultBehaviors from './defaultBehaviors';
-import * as utilities from './utilities';
-import {addBehaviors, addBehavior, removeBehavior} from './behaviors';
-import {learnElementNames, learnCustomElementNames} from './dom';
+import defaultBehaviors from './defaultBehaviors.js';
+import * as utilities from './utilities.js';
+import {addBehaviors, addBehavior, removeBehavior} from './behaviors.js';
+import {learnElementNames, learnCustomElementNames} from './dom.js';
 
 class CETEI {
   constructor(options){
@@ -104,7 +104,38 @@ class CETEI {
     Converts the supplied XML DOM into HTML5 Custom Elements. If a callback
     function is supplied, calls it on the result.
   */
-  domToHTML5(XML_dom, callback, perElementFn){
+  domToHTML5(XML_dom, callback, perElementFn) {
+    
+    if (!document) {
+      var document = XML_dom;
+      var Node = {
+        ELEMENT_NODE: 1,
+        ATTRIBUTE_NODE: 2,
+        TEXT_NODE: 3,
+        CDATA_SECTION_NODE: 4,
+        ENTITY_REFERENCE_NODE: 5,
+        ENTITY_NODE: 6,
+        PROCESSING_INSTRUCTION_NODE: 7,
+        COMMENT_NODE: 8,
+        DOCUMENT_NODE: 9,
+        DOCUMENT_TYPE_NODE: 10,
+        DOCUMENT_FRAGMENT_NODE: 11,
+        NOTATION_NODE: 12
+      };
+
+      var XPathResult = {
+        ANY_TYPE: 0,
+        NUMBER_TYPE: 1,
+        STRING_TYPE: 2,
+        BOOLEAN_TYPE: 3,
+        UNORDERED_NODE_ITERATOR_TYPE: 4,
+        ORDERED_NODE_ITERATOR_TYPE: 5,
+        UNORDERED_NODE_SNAPSHOT_TYPE: 6,
+        ORDERED_NODE_SNAPSHOT_TYPE: 7,
+        ANY_UNORDERED_NODE_TYPE: 8,
+        FIRST_ORDERED_NODE_TYPE: 9
+      };
+    }
 
     this.els = learnElementNames(XML_dom, this.namespaces);
 
@@ -205,11 +236,11 @@ class CETEI {
     this.done = true;
     if (callback) {
       callback(this.dom, this);
-      if (window) {
+      if (typeof window !== 'undefined') {
         window.dispatchEvent(ceteiceanLoad);
       }
     } else {
-      if (window) {
+      if (typeof window !== 'undefined') {
         window.dispatchEvent(ceteiceanLoad);
       }
       return this.dom;
@@ -439,7 +470,7 @@ template(str, elt) {
 
 // Define or apply behaviors for the document
 applyBehaviors() {
-  if (window.customElements) {
+  if (typeof window !== 'undefined' && window.customElements) {
     this.define.call(this, this.els);
   } else {
     this.fallback.call(this, this.els);
@@ -496,7 +527,8 @@ define(names) {
 */
 fallback(names) {
   for (let name of names) {
-    let fn = getFallback(this.behaviors, name);
+    // let fn = getFallback(this.behaviors, name);
+    let fn = false;
     if (fn) {
       for (let elt of Array.from((
           this.dom && !this.done 
